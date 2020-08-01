@@ -179,6 +179,27 @@ def countsequences(n):
 
 if __name__ == '__main__':
     
-    ## Check that computation matches OEIS
-    import doctest
-    doctest.testmod()
+    ## Check that computation matches OEIS (uncomment following)
+    ## import doctest
+    ## doctest.testmod()
+
+    import sys
+
+    usage = True # Print usage message
+    try:
+        if len(sys.argv) == 2:
+            limit = int(sys.argv[1])
+            if 3 <= limit <= 40:
+                ## 40 wlll take a ridiculously large time to compute
+                ## 30 can be done in a couple of minutes
+                usage = False
+                makefact(limit)
+                for n in range(limit + 1):
+                    print(n, countsequences(n))
+    except ValueError:
+        pass
+
+    if usage:
+        print(f"Usage: python3 {sys.argv[0]} N where 3 <= N <= 40")
+
+
