@@ -8,12 +8,12 @@ The answer depends on the algorithm used to determine the locations for the
 cuts. Here is a table that summarizes six different solutions:
 
 | Algorithm | Expected Length |
-| _________ | _______________ |
+| --------- | --------------- |
 | Choose Three Independent Points | 5.625 (analytic, exact) |
 | Choose x, then y, then z | 7.265298 (analytic, appoximate) |
 | Choose y, then x and z | 6.341117 (analytic, approximate) |
 | Choose x, then z, then y | 7.08(simulated) |
 | Choose Longest for next Slice | 4.47 (simulated)|
-| Choose Slice containing 6" for next | Slice 4:35 (simulated)|
+| Choose Slice containing 6" for next Slice | 4:35 (simulated)|
 
 The PDF [slicedruler.pdf](slicedruler.pdf) contains a description of the analysis. The Python program [ruler.py](ruler.py) was used to generated simulated results.
