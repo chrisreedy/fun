@@ -1,0 +1,142 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\begin{document}
+
+\section{The Problem}
+
+The problem originally appeared as the Puzzler on FiveThirtyEight web site on Friday, August 14, 2020.\footnote{\url{https://fivethirtyeight.com/features/are-you-hip-enough-to-be-square/}} Here is the problem:
+
+\begin{quotation}
+The Riddler Manufacturing Company makes all sorts of mathematical tools: compasses, protractors, slide rules — you name it!
+
+Recently, there was an issue with the production of foot-long rulers. It seems that each ruler was accidentally sliced at three random points along the ruler, resulting in four pieces. Looking on the bright side, that means there are now four times as many rulers — they just happen to have different lengths.
+
+On average, how long are the pieces that contain the 6-inch mark?
+\end{quotation}
+
+There is not a unique answer to this problem. The answer depends on the process used to determine the location of the three slices. The following sections describes an algorithm for computing the location of the slices and computes the solution for that algorithm. There is a summary at the end
+with the result for each algorithm, together with some additional results for other algorithms from Python simulations.
+
+Within these sections we observe the following conventions:
+\begin{enumerate}
+\item The ruler is twelve inches long. So all lengths are in inches.
+\item The three points where the slices occur designated by $x$, $y$, and $z$. Unless otherwise noted, we will have $0 < x < y < z < 12$. We note that there is zero probability of any of $<$ actually being equality, so the possibility is ignored. 
+\item All random choices are uniformly distributed. A sentence ``Randomly choose a point between $3$ and $12$'' implies a uniform distribution where the
+probability of choosing a point between $3$ and $4$ inches is $1/9$.
+\end{enumerate}
+
+\section{Choose Three Independent Points}
+
+For this algorithm we independently choose three random points between zero and $12$ inches and then sort them in order to obtain $x$, $y$, and $z$.
+
+We divide this into four cases:
+\begin{enumerate}
+\item $0 < x < y < z < 6$
+\item $0 < x < y < 6 < z < 12$
+\item $0 < x < 6 < y < z < 12$
+\item $6 < x < y < z < 12$
+\end{enumerate}
+
+Cases 1 and 4 occur with probability $1/8$ and cases 2 and 3 occur with probability $3/8$. If we reverse the numbers on the ruler case 1 is equivalent
+to case 4 and case 2 is equivalent to case 3.
+
+For case 1 the desired length (length of the piece with the $6$ inch mark) is $12 - z$. $z$ is the maximum of three uniformly distributed random numbers
+in the same interval. We know \footnote{For example,
+\url{https://math.stackexchange.com/questions/460649/the-largest-of-n-random-numbers-over-a-uniform-distribution}} that the maximum is $\frac{N}{N+1}$
+times the length of the interval. In this case that gives the expected value of $z = \frac{3}{4} \cdot 6  = 4.5$. So the expected length is $12 - 4.5 = 7.5$ inches.
+
+For case 2 the desired length is $z - y$. The expected value of $z = 9$, the middle of the interval. The expected value of $y = \frac{2}{3} \cdot 6 = 4$. The
+expected length is $9 - 4 = 5$ inches.
+
+Combining the cases, remembering that cases 1 and 4 and cases 2 and 3 are equivalent, gives the expected length as $ \frac{1}{4} \cdot 7.5 + \frac {3}{4} \cdot 5 = 5 + \frac{5}{8} = 5.625$ inches.
+
+\section{Choose $x$, then $y$, then $z$}
+
+For this algorithm, we choose $x$ between $0$ and $12$, then $y$ between $x$ and $12$, and finally, $z$ between $y$ and $12$.
+
+We note for this case that if $x \ge 6$, the choices for $y$ and $z$ are irrelevant and the length is $x$. If $x < 6$, we then have to look at $y$, and potentially
+$z$ to compute the desired length. We will define $E$ to be the desired length, $EX(x)$ to be the expected length for  a given value of $x$ assuming $0 < x < 6$, and $EY(y)$ to be the expected length for a given value of $y$ assuming $0 < x < y < 6$.
+
+We have
+$$ E =  \frac{1}{12} \left({\int_{0}^{6} EX(x) dx} + {\int_{6}^{12} x \,dx}\right)$$
+
+Similarly, we have
+\begin{eqnarray*}
+EX(x) &=& \frac{1}{12-x} \left({\int_{x}^{6} EY(y) dy} + {\int_{6}^{12} y-x \,dy}\right)\\
+EY(y) &=&  \frac{1}{12-y} \left({\int_{y}^{6} 12-z \,dz} + {\int_{6}^{12} z-y \,dz}\right)
+\end{eqnarray*} 
+
+Working backwards (with help from Wolfram Alpha!\footnote{\url{https://www.wolframalpha.com/input/}}):
+\begin{eqnarray*}
+EY(y) &=& \frac{1}{12-y} \left( \frac{1}{2} y^2 -12 y + 54 + 6(9-y) \right)\\
+&=& \frac{\frac{1}{2}y^2 -18y +108}{12-y}
+\end{eqnarray*}
+\begin{eqnarray*}
+EX(x) &=& \frac{1}{12-x} \left({\int_{x}^{6} \frac{\frac{1}{2}y^2 -18y +108}{12-y} \,dy} + {\int_{6}^{12} y-x \,dy}\right)
+\end{eqnarray*}
+\begin{eqnarray*}
+\int_{x}^{6} \frac{\frac{1}{2}y^2 -18y +108}{12-y} \,dy &=& \frac{1}{2} \left(\frac{1}{2}x^2 + 12x + 144\,log\left(\frac{12-x}{6}\right)-90\right)\\
+&&-18\left(x + 12\,log\left(\frac{12-x}{6}\right) -6\right)\\
+&&+108 \, log\left(\frac{12-x}{6}\right)\\
+&=&\frac{1}{4}x^2 -12x -36log\left(\frac{12-x}{6}\right) + 63\\
+{\int_{6}^{12} y-x \,dy}&=&-6x +54\\
+EX(x)&=&\frac{\frac{1}{4}x^2 -18x -36log\left(\frac{12-x}{6}\right) + 117}{12-x}\\
+\end{eqnarray*}
+\begin{eqnarray*}
+E &=&  \frac{1}{12} \left({\int_{0}^{6} \frac{\frac{1}{4}x^2 -18x -36log\left(\frac{12-x}{6}\right) + 117}{12-x} dx} + {\int_{6}^{12} x \,dx}\right)
+\end{eqnarray*}
+\begin{eqnarray*}
+\int_{0}^{6} \frac{\frac{1}{4}x^2 -18x -36log\left(\frac{12-x}{6}\right) + 117}{12-x} dx &=&\frac{1}{4}\left(144log(2) - 90\right)\\
+&&-18\left(12log(2) - 6\right)\\
+&&-36\left(\frac{1}{2}log^2(2)\right)\\
+&&117\,log(2)\\
+&=&-63\, log(2) - 18 \,log^2(2) +85.5\\
+\int_{6}^{12} x \,dx &=& 54                                                            
+\end{eqnarray*}
+\begin{eqnarray*}
+E &=& \frac{1}{12}\left(-63\, log(2) - 18 \,log^2(2) +139.5\right)\\
+&=& -5.25\,log(2) - 1.5\,log^2(2)+11.625 \approx 7.265298
+\end{eqnarray*}
+
+\section{Choose $y$, then $x$ and $z$}
+
+This algorithm is similar to the last one except we first choose $y$ between $0$ and $12$ and then choose $x$ between $0$ and $y$ and $z$
+between $y$ and $12$.
+
+We note in this case that for $y > 6$ we only have to choose $x$ and for $y < 6$ we only have to choose $z$. Further, we can see that these two
+cases are symmetric: reversing the ruler transforms one into the other. So, we assume $y > 6$ and ignore the choice of $z$. Similar to the previous
+we define $E$ to be the desired length and $EY(y)$ to be the expected length for a given value of y assuming $6 < y < 12$.
+
+We have
+\begin{eqnarray*}
+E &=& \frac{1}{6} \int_{6}^{12} EY(y) dy\\
+EY(y) &=& \frac{1}{y} \left( \int_{0}^{6} y-x \,dx + \int_{6}^{y} x \, dx \right)\\
+&=& \frac{1}{y} \left( 6y - 18 + \frac{1}{2} y^2 - 18 \right)\\
+&=& \frac{1}{2}y + 6 - \frac{36}{y}\\
+E &=& \frac{1}{6} \int_{6}^{12}  \frac{1}{2}y + 6 - \frac{36}{y} dy\\
+&=& \frac{1}{6} \left( \frac{12^2}{4} + 6 \cdot 12 - 36\,log(12) - \frac{6^2}{4} - 6 \cdot 6 + 36\,log(6)\right)\\
+&=& \frac{1}{6} \left( 63 - 36 \, log(2) \right)\\
+&=& 10.5 - 6 log(2) \approx 6.341117
+\end{eqnarray*}
+
+\section{Summary}
+
+The table below summarizes the results for different algorithms. In addition to the analytical results from the preceding sections, the table includes
+expected lengths from Python simulations of some additional algorithms. These results are marked with an asterisk (*). Due to time constraints,
+I was unable to derive analytical results for these values. The Python program that generated these numbers can be 
+found at \url{https://github.com/chrisreedy/fun/blob/master/SlicedRuler/ruler.py}.
+
+\,
+
+\begin{tabular}{l l}
+\textbf{Algorithm} & \textbf{Expected Length} \\
+\hline Choose Three Independent Points & $5.625$ \\
+Choose $x$, then $y$, then $z$ & $\approx 7.265298$\\
+Choose $y$, then $x$ and $z$ & $\approx 6.341117$\\
+Choose $x$, then $z$, then $y$ & $7.08^*$ \\
+Choose Longest for next Slice & $4.47^*$ \\
+Choose Slice containing 6" for next Slice & $4.35^*$
+\end {tabular}
+
+\end{document}
