@@ -148,20 +148,85 @@ def processlongest():
         x, y  = random.uniform(0, x), x
     else:
         y = random.uniform(x, 12)
+    assert 0 <= x <= y <= 12
     if x >= y - x and x >= 12 - y:
         x, y, z = random.uniform(0, x), x, y
     elif y - x >= 12 - y:
         y, z = random.uniform(x, y), y
     else:
         z = random.uniform(y, 12)
+    assert 0 <= x <= y <= z <= 12
     if x >= 6:
         return x
     elif y >= 6:
         return y - x
-    elif z >= y:
+    elif z >= 6:
         return z - y
     else:
         return 12 - z
+
+def processlongestV2():
+    z = random.uniform(6, 12)
+    if z >= 8:
+        t = random.uniform(0, z)
+        if t >= z/2:
+            y = t
+            if y <= 6:
+                return z - y
+            else:
+                x = random.uniform(0, y)
+                if x >= 6:
+                    return x
+                else:
+                    return y - x
+        else:
+            x = t
+            y = random.uniform(x, z)
+            if y >= 6:
+                return y - x
+            else:
+                return z - y
+    else:
+        t = random.uniform(0, z)
+        if t < 2*z - 12:
+            x = t
+            y = random.uniform(x, z)
+            if y <= 6:
+                return z - y
+            else:
+                return y - x
+        elif t <= 12 - z:
+            x = t
+            y = z
+            return y - x
+        else:
+            y = t
+            if y <= 6:
+                return z - y
+            else:
+                x = random.uniform(0, y)
+                if x >= 6:
+                    return x
+                else:
+                    return y - x
+
+def processlongest_ey(y):
+    def proc():
+        x = random.uniform(6, y)
+        if x <= 6:
+            return y - x
+        else:
+            return x
+    return proc
+
+def processlongest_ex(x, z):
+    def proc():
+        y = random.uniform(x, z)
+        if y <= 6:
+            return z - y
+        else:
+            return y - x
+    return proc
 
 def processslice6():
     """Return the length of the part of the ruler containing 6.
